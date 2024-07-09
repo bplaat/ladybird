@@ -48,6 +48,7 @@ namespace Web::SVG::AttributeNames {
     E(maskContentUnits)             \
     E(maskUnits)                    \
     E(numOctaves)                   \
+    E(nonce)                   \
     E(offset)                       \
     E(opacity)                      \
     E(pathLength)                   \

@@ -836,8 +836,16 @@ WebIDL::ExceptionOr<JS::NonnullGCPtr<Node>> Node::clone_node(Document* document,
             // 2. Append copyAttribute to copy.
             element_copy->append_attribute(name, value);
         });
-        copy = move(element_copy);
 
+        // https://html.spec.whatwg.org/multipage/urls-and-fetching.html#attr-nonce
+        // The cloning steps for elements that include HTMLOrSVGElement must set the [[CryptographicNonce]] slot on the copy to the value of the slot on the element being cloned.
+        if (is<HTML::HTMLElement>(element)) {
+            auto& html_element = static_cast<HTML::HTMLElement&>(element);
+            auto& html_element_copy = static_cast<HTML::HTMLElement&>(*element_copy);
+            html_element_copy.set_nonce(MUST(String::from_utf8(html_element.nonce())));
+        }
+
+        copy = move(element_copy);
     }
     // 3. Otherwise, let copy be a node that implements the same interfaces as node, and fulfills these additional requirements, switching on the interface node implements:
     else if (is<Document>(this)) {

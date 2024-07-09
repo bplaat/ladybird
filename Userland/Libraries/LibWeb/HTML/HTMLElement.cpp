@@ -72,6 +72,17 @@ JS::NonnullGCPtr<DOMStringMap> HTMLElement::dataset()
     return *m_dataset;
 }
 
+// https://html.spec.whatwg.org/multipage/urls-and-fetching.html#dom-noncedelement-nonce
+StringView HTMLElement::nonce() const
+{
+    return m_cryptographic_nonce;
+}
+
+void HTMLElement::set_nonce(String const& nonce)
+{
+    m_cryptographic_nonce = nonce;
+}
+
 // https://html.spec.whatwg.org/multipage/dom.html#dom-dir
 StringView HTMLElement::dir() const
 {
@@ -358,6 +369,30 @@ bool HTMLElement::cannot_navigate() const
     return !is<HTML::HTMLAnchorElement>(this) && !is_connected();
 }
 
+void HTMLElement::inserted()
+{
+    Element::inserted();
+
+    // https://html.spec.whatwg.org/multipage/urls-and-fetching.html#attr-nonce
+    // Whenever an element including HTMLOrSVGElement becomes browsing-context connected, the user agent must execute the following steps on the element:
+    if (is_browsing_context_connected()) {
+        // 1. Let CSP list be element's shadow-including root's policy container's CSP list.
+        // FIXME: HTML::PolicyContainer CSP list is not implemented yet.
+
+        // 2. If CSP list contains a header-delivered Content Security Policy, and element has a nonce content attribute attr whose value is not the empty string, then:
+        if (auto nonce_attr = get_attribute(HTML::AttributeNames::nonce); nonce_attr.has_value() && !nonce_attr.value().is_empty()) {
+            // 2.1. Let nonce be element's [[CryptographicNonce]].
+            auto nonce = nonce_attr.value();
+
+            // 2.2. Set an attribute value for element using "nonce" and the empty string.
+            MUST(set_attribute(HTML::AttributeNames::nonce, {}));
+
+            // 2.3. Set element's [[CryptographicNonce]] to nonce.
+            m_cryptographic_nonce = nonce;
+        }
+    }
+}
+
 void HTMLElement::attribute_changed(FlyString const& name, Optional<String> const& value)
 {
     Element::attribute_changed(name, value);
@@ -376,6 +411,21 @@ void HTMLElement::attribute_changed(FlyString const& name, Optional<String> cons
                 // Having no such attribute or an invalid value maps to the "inherit" state.
                 m_content_editable_state = ContentEditableState::Inherit;
             }
+        }
+    }
+
+    // https://html.spec.whatwg.org/multipage/urls-and-fetching.html#attr-nonce
+    // The following attribute change steps are used for the nonce content attribute:
+    // 1. If element does not include HTMLOrSVGElement, then return.
+    // 2. If localName is not nonce or namespace is not null, then return.
+    if (name == HTML::AttributeNames::nonce) {
+        // 3. If value is null, then set element's [[CryptographicNonce]] to the empty string.
+        if (!value.has_value()) {
+            m_cryptographic_nonce = {};
+        }
+        // 4. Otherwise, set element's [[CryptographicNonce]] to value.
+        else {
+            m_cryptographic_nonce = value.value();
         }
     }
 

@@ -55,6 +55,9 @@ public:
 
     [[nodiscard]] JS::NonnullGCPtr<DOMStringMap> dataset();
 
+    StringView nonce() const;
+    void set_nonce(String const&);
+
     void focus();
 
     void click();
@@ -84,6 +87,8 @@ protected:
     HTMLElement(DOM::Document&, DOM::QualifiedName);
 
     virtual void initialize(JS::Realm&) override;
+
+    virtual void inserted() override;
 
     virtual void attribute_changed(FlyString const& name, Optional<String> const& value) override;
 
@@ -117,6 +122,9 @@ private:
 
     // https://html.spec.whatwg.org/multipage/interaction.html#click-in-progress-flag
     bool m_click_in_progress { false };
+
+    // https://html.spec.whatwg.org/multipage/urls-and-fetching.html#cryptographicnonce
+    String m_cryptographic_nonce {};
 };
 
 }
