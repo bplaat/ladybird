@@ -3723,6 +3723,10 @@ JS_DEFINE_NATIVE_FUNCTION(@class_name@::@attribute.setter_callback@)
     else
         MUST(impl->set_attribute(HTML::AttributeNames::@attribute.reflect_name@, cpp_value.value()));
 )~~~");
+                } else if (attribute.extended_attributes.contains("URL")) {
+                    attribute_generator.append(R"~~~(
+MUST(impl->set_attribute(HTML::AttributeNames::@attribute.reflect_name@, MUST(URL::URL(cpp_value).to_string())));
+)~~~");
                 } else {
                     attribute_generator.append(R"~~~(
 MUST(impl->set_attribute(HTML::AttributeNames::@attribute.reflect_name@, cpp_value));
