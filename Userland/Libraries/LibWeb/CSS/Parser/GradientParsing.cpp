@@ -373,6 +373,7 @@ RefPtr<StyleValue> Parser::parse_conic_gradient_function(TokenStream<ComponentVa
 
 RefPtr<StyleValue> Parser::parse_radial_gradient_function(TokenStream<ComponentValue>& outer_tokens)
 {
+    using GradientType = RadialGradientStyleValue::GradientType;
     using EndingShape = RadialGradientStyleValue::EndingShape;
     using Extent = RadialGradientStyleValue::Extent;
     using CircleSize = RadialGradientStyleValue::CircleSize;
@@ -385,9 +386,14 @@ RefPtr<StyleValue> Parser::parse_radial_gradient_function(TokenStream<ComponentV
     if (!component_value.is_function())
         return nullptr;
 
+    auto gradient_type = GradientType::Standard;
     auto repeating_gradient = GradientRepeating::No;
 
     auto function_name = component_value.function().name().bytes_as_string_view();
+
+    function_name = consume_if_starts_with(function_name, "-webkit-"sv, [&] {
+        gradient_type = GradientType::WebKit;
+    });
 
     function_name = consume_if_starts_with(function_name, "repeating-"sv, [&] {
         repeating_gradient = GradientRepeating::Yes;
@@ -499,7 +505,7 @@ RefPtr<StyleValue> Parser::parse_radial_gradient_function(TokenStream<ComponentV
         return nullptr;
 
     auto& token = tokens.peek_token();
-    if (token.is_ident("at"sv)) {
+    if (token.is_ident("at"sv)) { // FIXME
         (void)tokens.next_token();
         auto position = parse_position_value(tokens);
         if (!position)
@@ -523,7 +529,7 @@ RefPtr<StyleValue> Parser::parse_radial_gradient_function(TokenStream<ComponentV
         at_position = PositionStyleValue::create_center();
 
     transaction.commit();
-    return RadialGradientStyleValue::create(ending_shape, size, at_position.release_nonnull(), move(*color_stops), repeating_gradient);
+    return RadialGradientStyleValue::create(ending_shape, size, at_position.release_nonnull(), move(*color_stops), gradient_type, repeating_gradient);
 }
 
 }

@@ -16,6 +16,8 @@ namespace Web::CSS {
 String RadialGradientStyleValue::to_string() const
 {
     StringBuilder builder;
+    if (m_properties.gradient_type == GradientType::WebKit)
+        builder.append("-webkit-"sv);
     if (is_repeating())
         builder.append("repeating-"sv);
     builder.appendff("radial-gradient({} "sv,

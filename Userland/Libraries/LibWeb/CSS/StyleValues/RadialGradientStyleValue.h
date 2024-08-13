@@ -18,6 +18,11 @@ namespace Web::CSS {
 
 class RadialGradientStyleValue final : public AbstractImageStyleValue {
 public:
+    enum class GradientType {
+        Standard,
+        WebKit
+    };
+
     enum class EndingShape {
         Circle,
         Ellipse
@@ -43,10 +48,10 @@ public:
 
     using Size = Variant<Extent, CircleSize, EllipseSize>;
 
-    static ValueComparingNonnullRefPtr<RadialGradientStyleValue> create(EndingShape ending_shape, Size size, ValueComparingNonnullRefPtr<PositionStyleValue> position, Vector<LinearColorStopListElement> color_stop_list, GradientRepeating repeating)
+    static ValueComparingNonnullRefPtr<RadialGradientStyleValue> create(EndingShape ending_shape, Size size, ValueComparingNonnullRefPtr<PositionStyleValue> position, Vector<LinearColorStopListElement> color_stop_list, GradientType type, GradientRepeating repeating)
     {
         VERIFY(color_stop_list.size() >= 2);
-        return adopt_ref(*new (nothrow) RadialGradientStyleValue(ending_shape, size, move(position), move(color_stop_list), repeating));
+        return adopt_ref(*new (nothrow) RadialGradientStyleValue(ending_shape, size, move(position), move(color_stop_list), type, repeating));
     }
 
     virtual String to_string() const override;
@@ -71,9 +76,9 @@ public:
     virtual ~RadialGradientStyleValue() override = default;
 
 private:
-    RadialGradientStyleValue(EndingShape ending_shape, Size size, ValueComparingNonnullRefPtr<PositionStyleValue> position, Vector<LinearColorStopListElement> color_stop_list, GradientRepeating repeating)
+    RadialGradientStyleValue(EndingShape ending_shape, Size size, ValueComparingNonnullRefPtr<PositionStyleValue> position, Vector<LinearColorStopListElement> color_stop_list, GradientType type, GradientRepeating repeating)
         : AbstractImageStyleValue(Type::RadialGradient)
-        , m_properties { .ending_shape = ending_shape, .size = size, .position = move(position), .color_stop_list = move(color_stop_list), .repeating = repeating }
+        , m_properties { .ending_shape = ending_shape, .size = size, .position = move(position), .color_stop_list = move(color_stop_list), .gradient_type = type, .repeating = repeating }
     {
     }
 
@@ -82,6 +87,7 @@ private:
         Size size;
         ValueComparingNonnullRefPtr<PositionStyleValue> position;
         Vector<LinearColorStopListElement> color_stop_list;
+        GradientType gradient_type;
         GradientRepeating repeating;
         bool operator==(Properties const&) const = default;
     } m_properties;
