@@ -2066,6 +2066,8 @@ RefPtr<CSSStyleValue const> Parser::parse_display_value(TokenStream<ComponentVal
                 case DisplayInside::Table:
                     return Display::from_short(Display::Short::Table);
                 case DisplayInside::Flex:
+                case DisplayInside::WebkitBox:
+                case DisplayInside::WebkitFlex:
                     return Display::from_short(Display::Short::Flex);
                 case DisplayInside::Grid:
                     return Display::from_short(Display::Short::Grid);
@@ -2099,6 +2101,8 @@ RefPtr<CSSStyleValue const> Parser::parse_display_value(TokenStream<ComponentVal
                 case DisplayLegacy::InlineTable:
                     return Display::from_short(Display::Short::InlineTable);
                 case DisplayLegacy::InlineFlex:
+                case DisplayLegacy::WebkitInlineBox:
+                case DisplayLegacy::WebkitInlineFlex:
                     return Display::from_short(Display::Short::InlineFlex);
                 case DisplayLegacy::InlineGrid:
                     return Display::from_short(Display::Short::InlineGrid);

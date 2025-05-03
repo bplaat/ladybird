@@ -1030,6 +1030,7 @@ RefPtr<CSSStyleValue const> Parser::parse_keyword_value(TokenStream<ComponentVal
 {
     auto const& peek_token = tokens.next_token();
     if (peek_token.is(Token::Type::Ident)) {
+        dbgln("CSSParser: Found keyword: {}", peek_token.token().ident());
         auto keyword = keyword_from_string(peek_token.token().ident());
         if (keyword.has_value()) {
             tokens.discard_a_token(); // ident

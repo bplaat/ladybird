@@ -189,6 +189,8 @@
     "flow-root",
     "table",
     "flex",
+    "-webkit-box",
+    "-webkit-flex",
     "grid",
     "ruby",
     "math"
@@ -211,6 +213,8 @@
     "inline-block",
     "inline-table",
     "inline-flex",
+    "-webkit-inline-box",
+    "-webkit-inline-flex",
     "inline-grid"
   ],
   "display-outside": [
